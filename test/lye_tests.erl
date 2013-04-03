@@ -2,6 +2,41 @@
 -include_lib("eunit/include/eunit.hrl").
 
 %% =====================================================================
+%%  check/2
+%% =====================================================================
+
+check_test_() ->
+    Structure = {tome_of_light_naps, [{price_dollars, 300}, {weight_kg, 23.87}]},
+
+    PassingSpec = fun({tome_of_light_naps, Props}) ->
+                          case proplists:get_value(price_dollars, Props) >= 100 of
+                              true  -> ok;
+                              false -> {error, selling_for_too_little}
+                          end
+                  end,
+    FailingSpec = fun({tome_of_light_naps, Props}) ->
+                          case proplists:get_value(weight_kg, Props) < 1 of
+                              true  -> ok;
+                              false -> {error, selling_for_too_much}
+                          end
+                  end,
+
+    [
+     { "it will return ok when there are no specs given",
+       ?_assertMatch(ok, lye:check(Structure, []))},
+
+     { "it will correctly signal failure and success of specs",
+       [
+        ?_assertMatch(ok, lye:check(Structure, [PassingSpec])),
+        ?_assertMatch([{error, selling_for_too_much}],
+                      lye:check(Structure, [FailingSpec])),
+        ?_assertMatch([{error, selling_for_too_much}],
+                      lye:check(Structure, [FailingSpec, PassingSpec]))
+       ]
+     }
+    ].
+
+%% =====================================================================
 %%  apply_specs/2
 %% =====================================================================
 
