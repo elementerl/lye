@@ -22,7 +22,7 @@
 
 -spec check(structure(), Specs::[spec()]) -> ok | [error()].
 check(Structure, Specs) ->
-    SpecFuns = lists:map(fun(Spec) -> normalize_spec(Spec, fun module_exports/1) end, Specs),
+    SpecFuns = lists:flatten(lists:map(fun(Spec) -> normalize_spec(Spec, fun module_exports/1) end, Specs)),
     apply_specs(Structure, SpecFuns).
 
 %% =====================================================================
