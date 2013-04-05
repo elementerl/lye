@@ -37,6 +37,20 @@ check_test_() ->
     ].
 
 %% =====================================================================
+%% Override spec pattern
+%% =====================================================================
+
+overriding_spec_pattern_test_() ->
+    application:set_env(lye, spec_pattern, ".*"),
+
+    { "looks for the spec_pattern env var before using the default",
+        [
+            ?_assertMatch(ok, lye:check(foo, [lye_test_mod])),
+            ?_assertMatch([{error, not_foo}], lye:check(bar, [lye_test_mod]))
+        ]
+    }.
+
+%% =====================================================================
 %%  apply_specs/2
 %% =====================================================================
 
@@ -110,6 +124,7 @@ is_error_test_() ->
 
 exported_specs_test_() ->
     Arity = 1,
+    SpecPat = "_spec$",
 
     NoSpecs        = [{a_fun, Arity}],
     BadlyNamedSpec = [{spec_fun, Arity}],
@@ -119,16 +134,16 @@ exported_specs_test_() ->
     [
      { "It should return empty list when no specs are defined",
        [
-        ?_assertMatch([], lye:exported_specs(NoSpecs)),
-        ?_assertMatch([], lye:exported_specs(BadlyNamedSpec))
+        ?_assertMatch([], lye:exported_specs(NoSpecs, SpecPat)),
+        ?_assertMatch([], lye:exported_specs(BadlyNamedSpec, SpecPat))
        ]
      },
 
      { "It should be identity on module that exports only specs",
-       ?_assertMatch(AllSpecs, lye:exported_specs(AllSpecs))},
+       ?_assertMatch(AllSpecs, lye:exported_specs(AllSpecs, SpecPat))},
 
      { "It should only return specs from a mixed bag",
-       ?_assertMatch([{a_fun_spec, Arity}], lye:exported_specs(SomeSpecs))}
+       ?_assertMatch([{a_fun_spec, Arity}], lye:exported_specs(SomeSpecs, SpecPat))}
     ].
 
 
