@@ -23,11 +23,11 @@
 %%  API
 %% =====================================================================
 
--spec check(structure(), Specs::[spec()]) -> ok | [error()].
+-spec check(structure(), [spec()]) -> ok | nonempty_list(error()).
 check(Structure, Specs) when is_list(Specs) ->
     check(Structure, Specs, lookup_spec_pattern()).
 
--spec check(structure(), Specs::[spec()], SP::spec_pattern()) -> ok | [error()].
+-spec check(structure(), Specs::[spec()], SP::spec_pattern()) -> ok | nonempty_list(error()).
 check(Structure, Specs, SP) when is_list(Specs) ->
     Extractor = fun(Mod) -> module_exports(Mod, SP) end,
     SpecFuns = lists:flatten(lists:map(fun(Spec) -> normalize_spec(Spec, Extractor) end, Specs)),
@@ -37,14 +37,14 @@ check(Structure, Specs, SP) when is_list(Specs) ->
 %%  Private Interface
 %% =====================================================================
 
--spec apply_specs(structure(), [spec_fun()]) -> ok | [error()].
+-spec apply_specs(structure(), [spec_fun()]) -> ok | nonempty_list(error()).
 apply_specs(Structure, SpecFuns) ->
     case lists:filter(fun is_error/1, lists:map(fun(F) -> F(Structure) end, SpecFuns)) of
         []  -> ok;
         Err -> Err
     end.
 
--spec normalize_spec(spec(), module_extractor()) -> [spec_fun()].
+-spec normalize_spec(spec(), module_extractor()) -> nonempty_list(spec_fun()).
 normalize_spec(Spec, _) when is_function(Spec, 1) ->
     [Spec];
 normalize_spec(SpecMod, Extractor) when is_atom(SpecMod), is_function(Extractor, 1) ->
