@@ -15,7 +15,7 @@ app.plt:
 
 dialyze: app.plt compile
 	@$(DIALYZER) -q --plt app.plt -n ebin -Wunmatched_returns -Werror_handling \
-		-Wrace_conditions
+		-Wrace_conditions -Wunderspecs
 
 test:
 	@$(REBAR) skip_deps=true eunit
