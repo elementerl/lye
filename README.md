@@ -2,7 +2,9 @@
 
 [![Build Status](https://travis-ci.org/elementerl/lye.png)](https://travis-ci.org/elementerl/lye)
 
-A validation library. lye is [semantically versioned](http://semver.org/).
+Check the structure of your data. A bit like schemas, only less painful. 
+
+lye is [semantically versioned](http://semver.org/).
 
 ## Usage
 
