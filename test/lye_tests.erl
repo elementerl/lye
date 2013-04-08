@@ -93,6 +93,7 @@ apply_specs_test_() ->
 
 normalize_spec_test_() ->
     SpecFun = fun(_) -> ok end,
+    BadSpecFun = fun(_, _) -> ok end,
     SpecMod = mod,
     Extractor = fun(mod) -> [{a_fun_spec, 1}, {another_fun_spec, 1}] end,
 
@@ -101,7 +102,10 @@ normalize_spec_test_() ->
        ?_assertMatch([SpecFun], lye:normalize_spec(SpecFun, Extractor))},
 
      { "returns a list of functions returns by the Extractor",
-       ?_assertMatch([_|_], lye:normalize_spec(SpecMod, Extractor))}
+       ?_assertMatch([_|_], lye:normalize_spec(SpecMod, Extractor))},
+
+     { "raises an error when a spec function does not have arity 1",
+       ?_assertError(function_clause, lye:normalize_spec(BadSpecFun, Extractor))}
     ].
 
 %% =====================================================================
