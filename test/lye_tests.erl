@@ -20,6 +20,15 @@ check_test_() ->
                               false -> {error, selling_for_too_much}
                           end
                   end,
+    OtherFailingSpec = fun({tome_of_light_naps, Props}) ->
+                               Price = proplists:get_value(price_dollars, Props),
+                               Weight = proplists:get_value(weight_kg, Props),
+
+                               case Weight / Price =< 0.01 of
+                                   true -> ok;
+                                   false -> {error, <<"I will pay no more than a penny a kg!">>}
+                               end
+                       end,
 
     [
      { "it will return ok when there are no specs given",
@@ -28,10 +37,12 @@ check_test_() ->
      { "it will correctly signal failure and success of specs",
        [
         ?_assertMatch(ok, lye:check(Structure, [PassingSpec])),
-        ?_assertMatch([{error, selling_for_too_much}],
+        ?_assertMatch({error, [selling_for_too_much]},
                       lye:check(Structure, [FailingSpec])),
-        ?_assertMatch([{error, selling_for_too_much}],
-                      lye:check(Structure, [FailingSpec, PassingSpec]))
+        ?_assertMatch({error, [selling_for_too_much]},
+                      lye:check(Structure, [FailingSpec, PassingSpec])),
+        ?_assertMatch({error, [selling_for_too_much, <<"I will pay no more than a penny a kg!">>]},
+                      lye:check(Structure, [FailingSpec, PassingSpec, OtherFailingSpec]))
        ]
      }
     ].
@@ -46,7 +57,7 @@ overriding_spec_pattern_test_() ->
     { "looks for the spec_pattern env var before using the default",
         [
             ?_assertMatch(ok, lye:check(foo, [lye_test_mod])),
-            ?_assertMatch([{error, not_foo}], lye:check(bar, [lye_test_mod]))
+            ?_assertMatch({error, [not_foo]}, lye:check(bar, [lye_test_mod]))
         ]
     }.
 
@@ -79,9 +90,9 @@ apply_specs_test_() ->
 
      { "signals error when a spec fails",
        [
-        ?_assertMatch([{error, price_is_too_damn_high}],
+        ?_assertMatch({error, [price_is_too_damn_high]},
                       lye:apply_specs(Structure, [FailingSpec])),
-        ?_assertMatch([{error, price_is_too_damn_high}],
+        ?_assertMatch({error, [price_is_too_damn_high]},
                       lye:apply_specs(Structure, [FailingSpec, PassingSpec]))
        ]
      }
